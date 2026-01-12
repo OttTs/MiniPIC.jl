@@ -13,7 +13,7 @@ L = 2π / k
 x = [find_zero(x -> y - (x + α / k * sin(k * x)) / L, L*y) for y in range(0, 1, length=Nₚ)]
 v = randn(Nₚ)
 
-output = simulate(x, v;
+p = Parameters(
     mesh_length=L,
     num_cells=1000,
     time_step=0.02,
@@ -22,11 +22,19 @@ output = simulate(x, v;
     mass=1,
     weighting=L/Nₚ,
     permittivity=1,
-    write_interval=1,
-    write_particles=false,
     do_MC_PIC=false
 )
 
+simulate!(x, v;
+    parameters=p,
+    write_interval=1,
+    write_particles=false,
+    file_name="linear_damping"
+)
+
+using CSV, DataFrames
+
+output = CSV.read("linear_damping.csv", DataFrame)
 
 fig = Figure()
 ax = Axis(fig[1, 1], yscale=log10)

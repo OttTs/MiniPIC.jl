@@ -15,8 +15,11 @@ function fieldsolver!(x, E, α, do_MC_PIC::Bool)
 
     # Deposit charge to the grid ρ = ∑S(x - xₚ)
     E .= - Nₚ / Nₓ  # Neutralizing background
-    for xₚ in x
-        deposit!(xₚ, E)
+    @batch threadlocal=zero(E) for xₚ in x
+        deposit!(xₚ, threadlocal)
+    end
+    for local_E in threadlocal
+        E .+= local_E
     end
 
     # Solve Poisson equation and get electric field
@@ -47,7 +50,6 @@ end
 
 
 function get_field!(E, do_MC_PIC::Bool)
-    # TODO Theoretically, this should be -E (Due to nondimensionalization)
     # E must be filled with φ
     Nₓ = length(E)
 
