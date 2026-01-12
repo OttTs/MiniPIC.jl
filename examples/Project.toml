@@ -1,0 +1,7 @@
+[deps]
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+MiniPIC = "6c5866fa-a259-4fdf-ad45-a9836e344fc4"
+Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
+
+[sources]
+MiniPIC = {path = "/home/tobias/.julia/dev/MiniPIC"}

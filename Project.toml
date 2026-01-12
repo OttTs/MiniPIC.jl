@@ -1,9 +1,15 @@
 name = "MiniPIC"
 uuid = "6c5866fa-a259-4fdf-ad45-a9836e344fc4"
-authors = ["Tobias Ott"]
 version = "1.0.0-DEV"
+authors = ["Tobias Ott"]
+
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
 
 [compat]
+DataFrames = "1.8.1"
+ProgressMeter = "1.11.0"
 julia = "1.10.10"
 
 [extras]
