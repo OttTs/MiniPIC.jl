@@ -5,9 +5,40 @@ using DataFrames: DataFrame
 using CSV, JLD2
 using ProgressMeter
 
+"""
+    BOLTZMANN_CONSTANT
+
+Boltzmann constant in SI units (J/K).
+
+``k_B = 1.380649 \\times 10^{-23}`` J/K
+"""
 const BOLTZMANN_CONSTANT = 1.380649e-23
+
+"""
+    VACUUM_PERMITTIVITY
+
+Vacuum permittivity (electric constant) in SI units (F/m).
+
+``\\varepsilon_0 = 8.8541878128 \\times 10^{-12}`` F/m
+"""
 const VACUUM_PERMITTIVITY = 8.8541878128E-12
+
+"""
+    ELEMENTARY_CHARGE
+
+Elementary charge in SI units (C).
+
+``e = 1.60217663 \\times 10^{-19}`` C
+"""
 const ELEMENTARY_CHARGE = 1.60217663E-19
+
+"""
+    ELECTRON_MASS
+
+Electron mass in SI units (kg).
+
+``m_e = 9.1093837 \\times 10^{-31}`` kg
+"""
 const ELECTRON_MASS = 9.1093837E-31
 
 """

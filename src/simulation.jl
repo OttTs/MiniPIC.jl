@@ -1,19 +1,52 @@
 """
-    simulate(x::AbstractVector{T}, v::AbstractVector{T}; settings...) where {T}
+    simulate!(x, v; parameters, file_name, write_interval=1, write_particles=false, show_progress=true)
 
-Run a one-dimensional electro-static particle-in-cell simulation with periodic boundary conditions.
-The initial conditions are given by the particle's position `x` and velocity `v`.
-A uniform background charge is calculated for quasi-neutrality.
+Run a 1D electrostatic particle-in-cell simulation with periodic boundary conditions.
 
-The electric field is calculated with a second order finite difference scheme.
-The particle positions `x` and velocities `v` are updated using the Leapfrog method.
+This function evolves the particle positions `x` and velocities `v` in-place using the
+leapfrog integration scheme. The electric field is computed self-consistently by solving
+the Poisson equation with a second-order finite difference method.
 
-# Settings
-- `parameters::Parameters`: Simulation parameters
-- `write_interval::Integer=1`: Number of iterations between two outputs
-- `show_progress::Bool=true`: Flag whether to show the progress bar
+A uniform neutralizing background charge is automatically included for quasi-neutrality.
 
-Returns a DataFrame with the solution at the requested times.
+# Arguments
+- `x::AbstractVector`: Initial particle positions (modified in-place, non-dimensionalized during simulation)
+- `v::AbstractVector`: Initial particle velocities (modified in-place, non-dimensionalized during simulation)
+
+# Keyword Arguments
+- `parameters::Parameters`: Simulation parameters (required)
+- `file_name::String`: Base name for output files (required). Creates `file_name.csv` and `file_name.jld2`
+- `write_interval::Integer=1`: Number of time steps between diagnostic outputs
+- `write_particles::Bool=false`: If `true`, write particle data at each output interval;
+  particle data is always written at the first and last time step
+- `show_progress::Bool=true`: If `true`, display a progress bar
+
+# Output Files
+- `file_name.csv`: Time series of kinetic and potential energy
+- `file_name.jld2`: HDF5-compatible file containing simulation parameters and particle data
+
+# Example
+```julia
+using MiniPIC
+
+# Initialize particles
+Nₚ = 10000
+x = rand(Nₚ) * 2π  # Uniform in [0, 2π]
+v = randn(Nₚ)       # Maxwellian velocity distribution
+
+# Set up parameters
+p = Parameters(
+    mesh_length = 2π,
+    num_cells = 64,
+    time_step = 0.1,
+    num_steps = 100
+)
+
+# Run simulation
+simulate!(x, v; parameters=p, file_name="my_simulation")
+```
+
+See also: [`Parameters`](@ref), [`read_particles`](@ref), [`read_parameters`](@ref)
 """
 function simulate!(x::AbstractVector{T}, v::AbstractVector{T};
     parameters::Parameters,
