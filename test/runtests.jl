@@ -25,23 +25,24 @@ using Test
             # Particle at x=1.5 (cell 2, weight splits between nodes 2 and 3)
             ρ = zeros(Nₓ)
             MiniPIC.deposit!(1.5, ρ)
+            @test ρ[1] ≈ 0.0
             @test ρ[2] ≈ 0.5  # Half weight to node 2
             @test ρ[3] ≈ 0.5  # Half weight to node 3
-            @test ρ[1] ≈ 0.0
             @test ρ[4] ≈ 0.0
 
             # Particle at node boundary (x=2.0)
             ρ = zeros(Nₓ)
             MiniPIC.deposit!(2.0, ρ)
-            @test ρ[3] ≈ 1.0  # Full weight at node 3
             @test ρ[1] ≈ 0.0
             @test ρ[2] ≈ 0.0
+            @test ρ[3] ≈ 1.0  # Full weight at node 3
+            @test ρ[4] ≈ 0.0
 
-            # Particle in cell 4 (near periodic boundary, x=3.5)
+            # Particle in cell 4 (near periodic boundary, x=3.25)
             ρ = zeros(Nₓ)
-            MiniPIC.deposit!(3.5, ρ)
-            @test ρ[4] ≈ 0.5
-            @test ρ[1] ≈ 0.5  # Wraps to node 1 (periodic)
+            MiniPIC.deposit!(3.25, ρ)
+            @test ρ[4] ≈ 0.75
+            @test ρ[1] ≈ 0.25  # Wraps to node 1 (periodic)
         end
 
         @testset "interpolate MC-PIC" begin
@@ -55,11 +56,11 @@ using Test
             # At x=0.5: cell 1, ω = 0.5, result = 0.5*E[1] + 0.5*E[2] = 1.5
             @test MiniPIC.interpolate(0.5, E, true) ≈ 1.5
 
-            # At x=1.0: cell 1, ω = 1.0, result = 0*E[1] + 1*E[2] = 2.0
-            @test MiniPIC.interpolate(1.0, E, true) ≈ 2.0
+            # At x=1.25: cell 2, ω = 0.25, result = 0.75*E[2] + 0.25*E[3] = 2.25
+            @test MiniPIC.interpolate(1.25, E, true) ≈ 2.25
 
-            # At x=1.5: cell 2, ω = 0.5, result = 0.5*E[2] + 0.5*E[3] = 2.5
-            @test MiniPIC.interpolate(1.5, E, true) ≈ 2.5
+            # At x=3.5: cell 4, ω = 0.5, result = 0.5*E[4] + 0.5*E[1] = 2.5
+            @test MiniPIC.interpolate(3.5, E, true) ≈ 2.5
         end
 
         @testset "interpolate EC-PIC" begin
@@ -69,21 +70,30 @@ using Test
             # EC-PIC uses constant interpolation within each cell
             @test MiniPIC.interpolate(0.0, E, false) ≈ 1.0  # Cell 1
             @test MiniPIC.interpolate(0.5, E, false) ≈ 1.0  # Cell 1
-            @test MiniPIC.interpolate(1.5, E, false) ≈ 2.0  # Cell 2
-            @test MiniPIC.interpolate(2.5, E, false) ≈ 3.0  # Cell 3
+            @test MiniPIC.interpolate(1.25, E, false) ≈ 2.0  # Cell 2
+            @test MiniPIC.interpolate(3.5, E, false) ≈ 4.0  # Cell 3
         end
 
         @testset "get_potential! (Poisson solver)" begin
-            # Test that Poisson solver produces finite results
+            # Test that Poisson solver satisfies Δφ = ρ (with φ[1] = 0 gauge)
             Nₓ = 10
-            ρ = ones(Nₓ)
-            MiniPIC.get_potential!(ρ)
-            @test all(isfinite, ρ)
+            ρ = rand(Nₓ)
+            ρ[1] = 0.0  # The solver sets φ[1] = 0, so ρ[1] is effectively ignored
 
-            # Test with sinusoidal charge density
-            ρ_sin = [sin(2π * i / Nₓ) for i in 1:Nₓ]
-            MiniPIC.get_potential!(ρ_sin)
-            @test all(isfinite, ρ_sin)
+            φ = copy(ρ)
+            MiniPIC.get_potential!(φ)
+
+            # Verify: φ[i+1] - 2φ[i] + φ[i-1] ≈ ρ[i] for i > 1
+            # (Row 1 is the gauge condition φ[1] = 0)
+            for i in 2:Nₓ
+                i₋₁ = mod1(i - 1, Nₓ)
+                i₊₁ = mod1(i + 1, Nₓ)
+                Δφ = φ[i₊₁] - 2φ[i] + φ[i₋₁]
+                @test Δφ ≈ ρ[i] atol=1e-10
+            end
+
+            # Verify gauge condition
+            @test φ[1] ≈ 0.0
         end
 
         @testset "get_field!" begin

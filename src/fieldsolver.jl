@@ -31,20 +31,20 @@ end
 
 function get_potential!(φ)
     # Poisson solver φ = Δ⁻¹ ρ (Thomas algorithm)
+    # Solves: φ[i+1] - 2φ[i] + φ[i-1] = ρ[i] with φ[1] = 0 gauge
     # φ must be filled with ρ
     Nₓ = length(φ)
 
-    # Forward elimination
+    # Forward elimination (row 1 is gauge: φ[1] = 0)
     φ[1] = 0
-    for iₓ in 2:Nₓ
-        φ[iₓ] = φ[iₓ] + (iₓ - 1) / iₓ * φ[iₓ-1]
-
+    for iₓ in 3:Nₓ
+        φ[iₓ] = φ[iₓ] + (iₓ - 2) / (iₓ - 1) * φ[iₓ-1]
     end
 
     # Back substitution
-    φ[end] = - Nₓ /(Nₓ + 1) * φ[end]
-    for iₓ in (Nₓ - 1):-1:1
-        φ[iₓ] = iₓ / (iₓ + 1) * (φ[iₓ+1] - φ[iₓ])
+    φ[Nₓ] = -(Nₓ - 1) / Nₓ * φ[Nₓ]
+    for iₓ in (Nₓ - 1):-1:2
+        φ[iₓ] = (iₓ - 1) / iₓ * (φ[iₓ+1] - φ[iₓ])
     end
 end
 
@@ -54,7 +54,7 @@ function get_field!(E, do_MC_PIC::Bool)
     Nₓ = length(E)
 
     # Calculate the staggered electric field
-    # Eᵢ = φᵢ₊₁ - φᵢ / Δxᵢ
+    # Eᵢ = φᵢ₊₁ - φᵢ / Δx
     φ₁ = E[1]
     for iₓ in 1:(Nₓ - 1)
         E[iₓ] = E[iₓ+1] - E[iₓ]

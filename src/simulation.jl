@@ -91,23 +91,26 @@ end
 function simulate_steps!(x, v, E, α; num_steps, do_MC_PIC, progress)
     Nₓ = length(E)
 
-    # Leapfrog, half step for velocity (backwards)
+    # Leapfrog, half step for first push
+    #fieldsolver!(x, E, α, do_MC_PIC) # Already done before calling this function
     @batch for i in eachindex(v)
-        v[i] -= 0.5 * interpolate(x[i], E, do_MC_PIC)
+        v[i] += 0.5 * interpolate(x[i], E, do_MC_PIC)
+        x[i] = mod(x[i] + v[i], Nₓ)
     end
 
     # Main loop, full steps
-    for _ in 1:num_steps
+    for _ in 2:num_steps
+        fieldsolver!(x, E, α, do_MC_PIC)
         @batch for i in eachindex(v)
             v[i] += interpolate(x[i], E, do_MC_PIC)
             x[i] = mod(x[i] + v[i], Nₓ)
         end
-        fieldsolver!(x, E, α, do_MC_PIC)
 
         isnothing(progress) || next!(progress)
     end
 
     # Leapfrog, half step for velocity (forwards, to sync with position)
+    fieldsolver!(x, E, α, do_MC_PIC)
     @batch for i in eachindex(v)
         v[i] += 0.5 * interpolate(x[i], E, do_MC_PIC)
     end
