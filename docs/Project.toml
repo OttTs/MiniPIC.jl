@@ -1,0 +1,6 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+MiniPIC = "6c5866fa-a259-4fdf-ad45-a9836e344fc4"
+
+[sources]
+MiniPIC = {path = ".."}

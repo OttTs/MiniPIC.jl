@@ -1,2 +1,5 @@
 /Manifest*.toml
 /examples/Manifest*.toml
+docs/build/
+*.csv
+*.jld2
