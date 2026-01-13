@@ -15,7 +15,7 @@ function write_state!(x, v, E, iter; df, parameters, file_name, write_particles)
     E = (parameters.mass / parameters.charge) * (Δx / parameters.time_step^2) * E
 
     push!(df, (time=iter * parameters.time_step,
-                Ekin=kinetic_energy(v, parameters.mass),
+                Ekin=kinetic_energy(v, parameters.mass * parameters.weighting),
                 Epot=potential_energy(E, Δx, parameters.permittivity)))
 
     if write_particles
