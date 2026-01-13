@@ -1,26 +1,52 @@
-## Physical model
+# Physical Model
 
-The evolution of the density function ``f(x, v, t)`` of a charged species is given by the Vlasov equation
+## Vlasov-Poisson System
 
-$
-\frac{\partial f}{\partial t} + v\cdot\frac{\partial f}{\partial t} + \frac{q}{m}E\cdot\frac{\partial f}{\partial v} = 0,
-$
+MiniPIC.jl simulates collisionless plasmas by solving the Vlasov-Poisson system in one spatial dimension.
 
-with the species charge ``q`` and mass ``m``.
+### Vlasov Equation
 
-The electric field is given by the electrostatic Poisson equation
+The evolution of the distribution function ``f(x, v, t)`` of a charged species is governed by the Vlasov equation:
 
-$
-\varphi_{xx} = - \frac{\rho}{\varepsilon}\\
-E = - \varphi_x
-$
+```math
+\frac{\partial f}{\partial t} + v \frac{\partial f}{\partial x} + \frac{q}{m} E \frac{\partial f}{\partial v} = 0
+```
 
-where $\varphi$ is the electric potential and $\varepsilon$ is the absolute permittivity.
+where:
+- ``q`` is the particle charge
+- ``m`` is the particle mass
+- ``E`` is the electric field
 
-The charge density is given by
+### Poisson Equation
 
-$
-\rho = q \int f\,\mathrm{d}v - Q
-$
+The electric field is determined self-consistently through the electrostatic Poisson equation:
 
-with $Q=\frac{q}{L}\int\int f\,\mathrm{d}x\,\mathrm{d}v$ being a uniform background charge in order to ensure quasi-neutrality.
+```math
+\frac{\partial^2 \varphi}{\partial x^2} = -\frac{\rho}{\varepsilon}
+```
+
+```math
+E = -\frac{\partial \varphi}{\partial x}
+```
+
+where ``\varphi`` is the electric potential and ``\varepsilon`` is the permittivity.
+
+### Charge Density
+
+The charge density is obtained by integrating the distribution function over velocity space:
+
+```math
+\rho = q \int f \, \mathrm{d}v - Q
+```
+
+where ``Q`` is a uniform neutralizing background charge:
+
+```math
+Q = \frac{q}{L} \iint f \, \mathrm{d}x \, \mathrm{d}v
+```
+
+This background ensures quasi-neutrality of the plasma.
+
+## Boundary Conditions
+
+The simulation uses **periodic boundary conditions** in both position and field quantities. Particles leaving the domain on one side re-enter from the opposite side.

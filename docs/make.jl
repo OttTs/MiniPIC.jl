@@ -9,9 +9,7 @@ makedocs(
         "Home" => "index.md",
         "Physical Model" => "physical-model.md",
         "Numerics" => "numerics.md",
-        "User guide" => "userguide.md",
-        "Examples" => "examples.md",
-        "API" => "api.md"
+        "API Reference" => "api.md"
     ]
 )
 
