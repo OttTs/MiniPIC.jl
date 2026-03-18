@@ -98,6 +98,7 @@ function simulate_steps!(x, v, E, α; num_steps, do_MC_PIC, progress)
         v[i] += 0.5 * interpolate(x[i], E, do_MC_PIC)
         x[i] = mod(x[i] + v[i], Nₓ)
     end
+    isnothing(progress) || next!(progress)
 
     # Main loop, full steps
     for _ in 2:num_steps
