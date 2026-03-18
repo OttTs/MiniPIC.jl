@@ -55,6 +55,7 @@ function simulate!(x::AbstractVector{T}, v::AbstractVector{T};
     file_name::String,
     show_progress::Bool=true) where {T}
 
+    write_interval = max(1, write_interval)
     progress = show_progress ? Progress(parameters.num_steps) : nothing
 
     # Prepare simulation (non-dimensionalization)
