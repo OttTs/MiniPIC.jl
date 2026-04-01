@@ -3,7 +3,7 @@ function initialize_output(file_name::String, parameters::Parameters)
         file["parameters"] = parameters
     end
 
-    return DataFrame(time=Float64[], Ekin=Float64[], Epot=Float64[])
+    return DataFrame(time=Float64[], Ekin=Float64[], Epot=Float64[], u=Float64[], T=Float64[])
 end
 
 
@@ -16,7 +16,9 @@ function write_state!(x, v, E, iter; df, parameters, file_name, write_particles)
 
     push!(df, (time=iter * parameters.time_step,
                 Ekin=kinetic_energy(v, parameters.mass * parameters.weighting),
-                Epot=potential_energy(E, Δx, parameters.permittivity)))
+                Epot=potential_energy(E, Δx, parameters.permittivity),
+                u=mean(v),
+                T=parameters.mass * var(v) / BOLTZMANN_CONSTANT))
 
     if write_particles
         jldopen(file_name * ".jld2", "a+") do file

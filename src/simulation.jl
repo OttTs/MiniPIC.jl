@@ -22,7 +22,7 @@ A uniform neutralizing background charge is automatically included for quasi-neu
 - `show_progress::Bool=true`: If `true`, display a progress bar
 
 # Output Files
-- `file_name.csv`: Time series of kinetic and potential energy
+- `file_name.csv`: Time series of kinetic, potential energy, mean velocity, and temperature
 - `file_name.jld2`: HDF5-compatible file containing simulation parameters and particle data
 
 # Example

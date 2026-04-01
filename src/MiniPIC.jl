@@ -4,6 +4,7 @@ using Polyester: @batch
 using DataFrames: DataFrame
 using CSV, JLD2
 using ProgressMeter
+using Statistics: mean, var
 
 """
     BOLTZMANN_CONSTANT
